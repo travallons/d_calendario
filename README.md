@@ -10,14 +10,14 @@ Este repositório disponibiliza uma **Tabela Calendário** altamente detalhada e
 
 ## 📂 Arquivos Disponíveis  
 
-- **📄 `d_calendario.xlsx`** → Planilha Excel com todos os dados  
+- **📄 `d_calendario.xlsb`** → Planilha Excel com todos os dados  
 - **📜 `d_calendario.txt`** → Código M para Power Query (Power BI e Excel)  
 - **📊 `d_calendario.pbix`** → Modelo pronto no Power BI  
 
 ## 📌 Como Usar  
 
 ### 🟢 No Power BI  
-1. **Excel**: Importe o `d_calendario.xlsx` pelo **Obter Dados > Excel**.  
+1. **Excel**: Importe o `d_calendario.xlsb` pelo **Obter Dados > Excel**.  
 2. **Power Query**: Copie e cole o código do `d_calendario.txt` no Editor Avançado do Power Query.  
 3. **Power Query**: Copie e cole o código do `d_calendario_dinamico.txt` no Editor Avançado do Power Query para que seu calendário possua range baseado na sua fonte de dados.
 4. **Modelo Pronto**: Abra o `d_calendario.pbix` e explore o modelo já configurado.  
