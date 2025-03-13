@@ -1,4 +1,4 @@
-# 📅 Tabela Calendário Completa para Bancos de Dados Brasileiros  
+# 📅 Tabela Calendário Completa para Bancos de Dados Brasileiro  
 
 Este repositório disponibiliza uma **Tabela Calendário** altamente detalhada e otimizada para uso em **Power BI, SQL e outras ferramentas de análise de dados**. Ela inclui:  
 
