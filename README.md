@@ -14,6 +14,9 @@ Este repositório disponibiliza uma **Tabela Calendário** altamente detalhada e
 - **📜 `d_calendario.txt`** → Código M para Power Query (Power BI e Excel)  
 - **📊 `d_calendario.pbix`** → Modelo pronto no Power BI  
 
+> **ℹ️ Importante:**  
+> O arquivo Excel está no formato **`.xlsb` (Binary Workbook)**, que reduz o tamanho do arquivo e melhora o desempenho no Excel. No entanto, algumas ferramentas externas podem não suportá-lo nativamente. Caso precise de outro formato, você pode salvar como `.xlsx` ou `.csv` dentro do próprio Excel.
+
 ## 📌 Como Usar  
 
 ### 🟢 No Power BI  
