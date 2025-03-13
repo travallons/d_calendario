@@ -1,0 +1,331 @@
+let
+    Inicio = #date(1900, 1, 1), // Defina a data de início
+    Fim = #date(2100, 12, 31), // Defina a data de fim
+    Dias = List.Dates(Inicio, Number.From(Fim - Inicio) + 1, #duration(1, 0, 0, 0)),
+    Tabela = Table.FromList(Dias, Splitter.SplitByNothing(), {"Data"}),
+    TabelaExpandida = Table.TransformColumns(Tabela, {{"Data", Date.From}}),
+    #"Índice Data" = Table.AddIndexColumn(TabelaExpandida, "Índice Data", 1, 1, Int64.Type),
+    #"Número Data" = Table.AddColumn(#"Índice Data", "Número Data", 
+each Number.From(
+Text.PadStart(Text.From(Date.Year([Data])), 4, "0") &
+Text.PadStart(Text.From(Date.Month([Data])), 2, "0") & 
+Text.PadStart(Text.From(Date.Day([Data])), 2, "0")
+)
+),
+    #"Data ISO" = Table.AddColumn(#"Número Data", "Data ISO", each Date.ToText([Data], "yyyy-MM-dd")),
+   
+    // Criando colunas
+    Dia = Table.AddColumn(#"Data ISO", "Dia", each Date.Day([Data])),
+    #"Número do Mês" = Table.AddColumn(Dia, "Número do Mês", each Date.Month([Data])),
+    Mês = Table.AddColumn(#"Número do Mês", "Mês", each Text.Proper(Date.ToText([Data], "MMMM", "pt-BR"))),
+    #"Mês EN" = Table.AddColumn(Mês, "Mês EN", each Text.Proper(Date.ToText([Data], "MMMM", "en-US"))),
+    #"Mês Abreviado" = Table.AddColumn(#"Mês EN", "Mês Abreviado", each Text.Proper(Date.ToText([Data], "MMM.", "pt-BR"))),
+    #"Mês Abreviado EN" = Table.AddColumn(#"Mês Abreviado", "Mês Abreviado EN", each Text.Proper(Date.ToText([Data], "MMM.", "en-US"))),
+    Ano = Table.AddColumn(#"Mês Abreviado EN", "Ano", each Date.Year([Data])),
+    #"Flag Ano Bissexto" = Table.AddColumn(Ano, "Flag Ano Bissexto", each if Date.IsLeapYear([Data]) then "Sim" else "Não"),
+    #"Número do Dia do Ano" = Table.AddColumn(#"Flag Ano Bissexto", "Número do Dia do Ano", each Date.DayOfYear([Data]), Int64.Type),
+    #"Número de Dias no Mês" = Table.AddColumn(#"Número do Dia do Ano", "Número de Dias no Mês", each Date.DaysInMonth([Data])),
+    #"Número do Mês Dia" = Table.AddColumn(#"Número de Dias no Mês", "Número do Mês Dia", 
+each Number.From(Date.ToText([Data], "MMdd")),
+Int64.Type
+),
+    #"Mês Dia" = Table.AddColumn(#"Número do Mês Dia", "Mês Dia", each Date.ToText([Data], "MM-dd")),
+    #"Mês Dia MMMM-dd" = Table.AddColumn(#"Mês Dia", "Mês Dia MMMM-dd", each Text.Proper(Date.ToText([Data], "MMMM-dd", "pt-BR"))),
+    #"Mês Dia MMMM-dd EN" = Table.AddColumn(#"Mês Dia MMMM-dd", "Mês Dia MMMM-dd EN", each Text.Proper(Date.ToText([Data], "MMMM-dd", "en-US"))),
+    #"Mês Dia MMM-dd" = Table.AddColumn(#"Mês Dia MMMM-dd EN", "Mês Dia MMM-dd", each Text.Proper(Date.ToText([Data], "MMM-dd", "pt-BR"))),
+    #"Mês Dia MMM-dd EN" = Table.AddColumn(#"Mês Dia MMM-dd", "Mês Dia MMM-dd EN", each Text.Proper(Date.ToText([Data], "MMM-dd", "en-US"))),
+    #"Dia Mês" = Table.AddColumn(#"Mês Dia MMM-dd EN", "Dia Mês", each Date.ToText([Data], "dd-MM")),
+    #"Dia Mês dd-MMMM" = Table.AddColumn(#"Dia Mês", "Dia Mês dd-MMMM", each Text.Proper(Date.ToText([Data], "dd-MMMM", "pt-BR"))),
+    #"Dia Mês dd-MMMM EN" = Table.AddColumn(#"Dia Mês dd-MMMM", "Dia Mês dd-MMMM EN", each Text.Proper(Date.ToText([Data], "dd-MMMM", "en-US"))),
+    #"Dia Mês dd-MMM" = Table.AddColumn(#"Dia Mês dd-MMMM EN", "Dia Mês dd-MMM", each Text.Proper(Date.ToText([Data], "dd-MMM", "pt-BR"))),
+    #"Dia Mês dd-MMM EN" = Table.AddColumn(#"Dia Mês dd-MMM", "Dia Mês dd-MMM EN", each Text.Proper(Date.ToText([Data], "dd-MMM", "en-US"))),
+    #"Índice Ano Mês" = Table.AddColumn(#"Dia Mês dd-MMM EN", "Índice Ano Mês", each ((Date.Year([Data]) - 1900) * 12) + Date.Month([Data])),
+    #"Número do Ano Mês" = Table.AddColumn(#"Índice Ano Mês", "Número do Ano Mês", 
+each Number.From(Date.ToText([Data], "yyyyMM")),
+Int64.Type
+),
+    #"Ano Mês" = Table.AddColumn(#"Número do Ano Mês", "Ano Mês", each Date.ToText([Data], "yyyy-MM")),
+    #"Ano Mês yyyy-MMMM" = Table.AddColumn(#"Ano Mês", "Ano Mês yyyy-MMMM", each Text.Proper(Date.ToText([Data], "yyyy-MMMM", "pt-BR"))),
+    #"Ano Mês yyyy-MMMM EN" = Table.AddColumn(#"Ano Mês yyyy-MMMM", "Ano Mês yyyy-MMMM EN", each Text.Proper(Date.ToText([Data], "yyyy-MMMM", "en-US"))),
+    #"Ano Mês yyyy-MMM" = Table.AddColumn(#"Ano Mês yyyy-MMMM EN", "Ano Mês yyyy-MMM", each Text.Proper(Date.ToText([Data], "yyyy-MMM", "pt-BR"))),
+    #"Ano Mês yyyy-MMM EN" = Table.AddColumn(#"Ano Mês yyyy-MMM", "Ano Mês yyyy-MMM EN", each Text.Proper(Date.ToText([Data], "yyyy-MMM", "en-US"))),
+    #"Mês Ano" = Table.AddColumn(#"Ano Mês yyyy-MMM EN", "Mês Ano", each Date.ToText([Data], "MM-yyyy")),
+    #"Mês Ano MMMM-yyyy" = Table.AddColumn(#"Mês Ano", "Mês Ano MMMM-yyyy", each Text.Proper(Date.ToText([Data], "MMMM-yyyy", "pt-BR"))),
+    #"Mês Ano MMMM-yyyy EN" = Table.AddColumn(#"Mês Ano MMMM-yyyy", "Mês Ano MMMM-yyyy EN", each Text.Proper(Date.ToText([Data], "MMMM-yyyy", "en-US"))),
+    #"Mês Ano MMM-yyyy" = Table.AddColumn(#"Mês Ano MMMM-yyyy EN", "Mês Ano MMM-yyyy", each Text.Proper(Date.ToText([Data], "MMM-yyyy", "pt-BR"))),
+    #"Mês Ano MMM-yyyy EN" = Table.AddColumn(#"Mês Ano MMM-yyyy", "Mês Ano MMM-yyyy EN", each Text.Proper(Date.ToText([Data], "MMM-yyyy", "en-US"))),
+    #"Número da Semana do Ano" = Table.AddColumn(#"Mês Ano MMM-yyyy EN", "Número da Semana do Ano", 
+each 
+    let
+        AnoAtual = Date.Year([Data]),
+        PrimeiroDiaDoAno = #date(AnoAtual, 1, 1),
+        DiaDaSemanaPrimeiroDia = Date.DayOfWeek(PrimeiroDiaDoAno, Day.Monday), // Segunda como 1º dia da semana
+        SemanaCorrigida = Number.RoundDown((Duration.Days([Data] - PrimeiroDiaDoAno) + DiaDaSemanaPrimeiroDia) / 7) + 1
+    in 
+        if SemanaCorrigida > 53 then 53 else SemanaCorrigida, Int64.Type
+),
+    #"Semana do Ano" = Table.AddColumn(#"Número da Semana do Ano", "Semana do Ano", 
+each Text.Combine({Text.From([Número da Semana do Ano], "pt-BR"),
+"ª Semana do Ano"}), 
+type text),
+    #"Semana do Ano EN" = Table.AddColumn(#"Semana do Ano", "Semana do Ano EN",
+each 
+    let 
+        WkYr = [Número da Semana do Ano],  
+        Ordinal = if WkYr = 1 then "st"  
+                  else if WkYr = 2 then "nd"  
+                  else if WkYr = 3 then "rd"  
+                  else "th"
+    in 
+        Text.Combine({Text.From(WkYr, "en-US"), Ordinal, " Week of the Year"})
+),
+    #"Semana do Ano Abreviado" = Table.AddColumn(#"Semana do Ano EN", "Semana do Ano Abreviado", 
+each Text.Combine({Text.From([Número da Semana do Ano], "pt-BR"),
+"ª Sem. Ano"}), 
+type text),
+    #"Semana do Ano Abreviado EN" = Table.AddColumn(#"Semana do Ano Abreviado", "Semana do Ano Abreviado EN", 
+each 
+    let 
+        WkYr = [Número da Semana do Ano],  
+        Ordinal = if WkYr = 1 then "st"  
+                  else if WkYr = 2 then "nd"  
+                  else if WkYr = 3 then "rd"  
+                  else "th"
+    in 
+        Text.Combine({Text.From(WkYr, "en-US"), Ordinal, " WkYr."})
+),
+    #"Número da Semana do Mês" = Table.AddColumn(#"Semana do Ano Abreviado EN", "Número da Semana do Mês", 
+each Date.WeekOfYear([Data]) 
+- 
+Date.WeekOfYear(#date(Date.Year([Data]), Date.Month([Data]), 1))
++ 1),
+    #"Semana do Mês" = Table.AddColumn(#"Número da Semana do Mês", "Semana do Mês", 
+each Text.Combine({Text.From([Número da Semana do Mês], "pt-BR"),
+"ª Semana do Mês"}), 
+type text),
+    #"Semana do Mês EN" = Table.AddColumn(#"Semana do Mês", "Semana do Mês EN", 
+each 
+    let 
+        WkMo = [Número da Semana do Mês],  
+        Ordinal = if WkMo = 1 then "st"  
+                  else if WkMo = 2 then "nd"  
+                  else if WkMo = 3 then "rd"  
+                  else "th"
+    in 
+        Text.Combine({Text.From(WkMo, "en-US"), Ordinal, " Week of the Month"})
+),
+    #"Semana do Mês Abreviado" = Table.AddColumn(#"Semana do Mês EN", "Semana do Mês Abreviado", 
+each Text.Combine({Text.From([Número da Semana do Mês], "pt-BR"),
+"ª Sem. Mês"}), 
+type text),
+    #"Semana do Mês Abreviado EN" = Table.AddColumn(#"Semana do Mês Abreviado", "Semana do Mês Abreviado EN", 
+each 
+    let 
+        WkMo = [Número da Semana do Mês],  
+        Ordinal = if WkMo = 1 then "st"  
+                  else if WkMo = 2 then "nd"  
+                  else if WkMo = 3 then "rd"  
+                  else "th"
+    in 
+        Text.Combine({Text.From(WkMo, "en-US"), Ordinal, " WkMo."})
+),
+    #"Número do Dia da Semana" = Table.AddColumn(#"Semana do Mês Abreviado EN", "Número do Dia da Semana", each Date.DayOfWeek([Data]) + 1),
+    #"Dia da Semana" = Table.AddColumn(#"Número do Dia da Semana", "Dia da Semana", each Text.Proper(Date.ToText([Data], "dddd", "pt-BR"))),
+    #"Dia da Semana EN" = Table.AddColumn(#"Dia da Semana", "Dia da Semana EN", each Text.Proper(Date.ToText([Data], "dddd", "en-US"))),
+    #"Dia da Semana Abreviado" = Table.AddColumn(#"Dia da Semana EN", "Dia da Semana Abreviado", each Text.Proper(Date.ToText([Data], "ddd.", "pt-BR"))),
+    #"Dia da Semana Abreviado EN" = Table.AddColumn(#"Dia da Semana Abreviado", "Dia da Semana Abreviado EN", each Text.Proper(Date.ToText([Data], "ddd.", "en-US"))),
+    #"Número do Dia da Semana ISO" = Table.AddColumn(#"Dia da Semana Abreviado EN", "Número do Dia da Semana ISO", each Date.DayOfWeek([Data], Day.Monday) +1),
+    #"Dia da Semana ISO" = Table.AddColumn(#"Número do Dia da Semana ISO", "Dia da Semana ISO", each Text.Proper(Date.ToText([Data], "dddd", "pt-BR"))),
+    #"Dia da Semana ISO EN" = Table.AddColumn(#"Dia da Semana ISO", "Dia da Semana ISO EN", each Text.Proper(Date.ToText([Data], "dddd", "en-US"))),
+    #"Dia da Semana ISO Abreviado" = Table.AddColumn(#"Dia da Semana ISO EN", "Dia da Semana ISO Abreviado", each Text.Proper(Date.ToText([Data], "ddd.", "pt-BR"))),
+    #"Dia da Semana ISO Abreviado EN" = Table.AddColumn(#"Dia da Semana ISO Abreviado", "Dia da Semana ISO Abreviado EN", each Text.Proper(Date.ToText([Data], "ddd.", "en-US"))),
+    #"Tipo de Dia" = Table.AddColumn(#"Dia da Semana ISO Abreviado EN", "Tipo de Dia", each if Date.DayOfWeek([Data]) = 0 or Date.DayOfWeek([Data]) = 6 then "Final de Semana" else "Dia de Semana"),
+    #"Número do Semestre" = Table.AddColumn(#"Tipo de Dia", "Número do Semestre", each if Date.Month([Data]) <= 6 then 1 else 2),
+    Semestre = Table.AddColumn(#"Número do Semestre", "Semestre", each if Date.Month([Data]) <= 6 then "1º Semestre" else "2º Semestre"),
+    #"Semestre EN" = Table.AddColumn(Semestre, "Semestre EN", each if Date.Month([Data]) <= 6 then "1st Semester" else "2nd Semester"),
+    #"Semestre Abreviado" = Table.AddColumn(#"Semestre EN", "Semestre Abreviado", each if Date.Month([Data]) <= 6 then "1º Sem." else "2º Sem."),
+    #"Semestre Abreviado EN" = Table.AddColumn(#"Semestre Abreviado", "Semestre Abreviado EN", each if Date.Month([Data]) <= 6 then "1st Sem." else "2nd Sem."),
+    #"Número do Quadrimestre" = Table.AddColumn(#"Semestre Abreviado EN", "Número do Quadrimestre", each Number.RoundUp(Date.Month([Data]) / 4)),
+    Quadrimestre = Table.AddColumn(#"Número do Quadrimestre", "Quadrimestre", each Number.ToText(Number.RoundUp(Date.Month([Data]) / 4)) & "º Quadrimestre"),
+    #"Quadrimestre EN" = Table.AddColumn(Quadrimestre, "Quadrimestre EN",
+each 
+    let 
+        Quadrimester = Number.RoundUp(Date.Month([Data]) / 4),  
+        Ordinal = if Quadrimester = 1 then "st"  
+                  else if Quadrimester = 2 then "nd"  
+                  else if Quadrimester = 3 then "rd"  
+                  else "th"
+    in 
+        Number.ToText(Quadrimester) & Ordinal & " Quadrimester"
+),
+    #"Quadrimestre Abreviado" = Table.AddColumn(#"Quadrimestre EN", "Quadrimestre Abreviado", each Number.ToText(Number.RoundUp(Date.Month([Data]) / 4)) & "º Quadrim."),
+    #"Quadrimestre Abreviado EN" = Table.AddColumn(#"Quadrimestre Abreviado", "Quadrimestre Abreviado EN", 
+each 
+    let
+        Quadrimester = Number.RoundUp(Date.Month([Data]) / 4),  
+        Ordinal = if Quadrimester = 1 then "st"  
+                  else if Quadrimester = 2 then "nd"  
+                  else if Quadrimester = 3 then "rd"  
+                  else "th"
+    in 
+        Number.ToText(Quadrimester) & Ordinal & " Quadrim."
+),
+    #"Número do Trimestre" = Table.AddColumn(#"Quadrimestre Abreviado EN", "Número do Trimestre", each Number.RoundUp(Date.Month([Data]) / 3)),
+    Trimestre = Table.AddColumn(#"Número do Trimestre", "Trimestre", each Number.ToText(Number.RoundUp(Date.Month([Data]) / 3)) & "º Trimestre"),
+    #"Trimestre EN" = Table.AddColumn(Trimestre, "Trimestre EN", 
+each 
+    let 
+        Quarter = Number.RoundUp(Date.Month([Data]) / 3),  
+        Ordinal = if Quarter = 1 then "st"  
+                  else if Quarter = 2 then "nd"  
+                  else if Quarter = 3 then "rd"  
+                  else "th"
+    in 
+        Number.ToText(Quarter) & Ordinal & " Quarter"
+),
+    #"Trimestre Abreviado" = Table.AddColumn(#"Trimestre EN", "Trimestre Abreviado", each Number.ToText(Number.RoundUp(Date.Month([Data]) / 3)) & "º Trim."),
+    #"Trimestre Abreviado EN" = Table.AddColumn(#"Trimestre Abreviado", "Trimestre Abreviado EN", 
+each 
+    let 
+        Quarter = Number.RoundUp(Date.Month([Data]) / 3),  
+        Ordinal = if Quarter = 1 then "st"  
+                  else if Quarter = 2 then "nd"  
+                  else if Quarter = 3 then "rd"  
+                  else "th"
+    in 
+        Number.ToText(Quarter) & Ordinal & " Qtr."
+),
+    #"Número do Bimestre" = Table.AddColumn(#"Trimestre Abreviado EN", "Número do Bimestre", each Number.RoundUp(Date.Month([Data]) / 2)),
+    Bimestre = Table.AddColumn(#"Número do Bimestre", "Bimestre", each Number.ToText(Number.RoundUp(Date.Month([Data]) / 2)) & "º Bimestre"),
+    #"Bimestre EN" = Table.AddColumn(Bimestre, "Bimestre EN", 
+each 
+    let 
+        Bimester = Number.RoundUp(Date.Month([Data]) / 2),  
+        Ordinal = if Bimester = 1 then "st"  
+                  else if Bimester = 2 then "nd"  
+                  else if Bimester = 3 then "rd"  
+                  else "th"
+    in 
+        Number.ToText(Bimester) & Ordinal & " Bimester"
+),
+    #"Bimestre Abreviado" = Table.AddColumn(#"Bimestre EN", "Bimestre Abreviado", each Number.ToText(Number.RoundUp(Date.Month([Data]) / 2)) & "º Bim."),
+    #"Bimestre Abreviado EN" = Table.AddColumn(#"Bimestre Abreviado", "Bimestre Abreviado EN", 
+each 
+    let 
+        Bimester = Number.RoundUp(Date.Month([Data]) / 2),  
+        Ordinal = if Bimester = 1 then "st"  
+                  else if Bimester = 2 then "nd"  
+                  else if Bimester = 3 then "rd"  
+                  else "th"
+    in 
+        Number.ToText(Bimester) & Ordinal & " Bim."
+),
+    #"Número da Quinzena" = Table.AddColumn(#"Bimestre Abreviado EN", "Número da Quinzena", each if Date.Day([Data]) <= 15 then 1 else 2),
+    Quinzena = Table.AddColumn(#"Número da Quinzena", "Quinzena", each if Date.Day([Data]) <= 15 then "1ª Quinzena" else "2ª Quinzena"),
+    #"Quinzena EN" = Table.AddColumn(Quinzena, "Quinzena EN", each if Date.Day([Data]) <= 15 then "1st Fortnight" else "2nd Fortnight"),
+    #"Quinzena Abreviado" = Table.AddColumn(#"Quinzena EN", "Quinzena Abreviado", each if Date.Day([Data]) <= 15 then "1ª Quinz." else "2ª Quinz."),
+    #"Quinzena Abreviado EN" = Table.AddColumn(#"Quinzena Abreviado", "Quinzena Abreviado EN", each if Date.Day([Data]) <= 15 then "1st Fnt." else "2nd Fnt."),
+    #"Número do Decêndio" = Table.AddColumn(#"Quinzena Abreviado EN", "Número do Decêndio", 
+each if Date.Day([Data]) <= 10 then 1 
+else if Date.Day([Data]) <= 20 then 2 
+else 3),
+    Decêndio = Table.AddColumn(#"Número do Decêndio", "Decêndio", 
+each Text.Combine({Text.From([Número do Decêndio], "pt-BR"), 
+"º Decêndio"}), 
+type text),
+    #"Decêndio EN" = Table.AddColumn(Decêndio, "Decêndio EN", 
+each 
+    let 
+        Decendial = [Número do Decêndio],  
+        Ordinal = if Decendial = 1 then "st"  
+                  else if Decendial = 2 then "nd"  
+                  else if Decendial = 3 then "rd"  
+                  else "th"
+    in 
+        Text.Combine({Text.From(Decendial, "en-US"), Ordinal, " Decendial"})
+),
+    #"Decêndio Abreviado" = Table.AddColumn(#"Decêndio EN", "Decêndio Abreviado",
+each Text.Combine({Text.From([Número do Decêndio], "pt-BR"), 
+"º Dec."}), 
+type text),
+    #"Decêndio Abreviado EN" = Table.AddColumn(#"Decêndio Abreviado", "Decêndio Abreviado EN", 
+each 
+    let 
+        Decendial = [Número do Decêndio],  
+        Ordinal = if Decendial = 1 then "st"  
+                  else if Decendial = 2 then "nd"  
+                  else if Decendial = 3 then "rd"  
+                  else "th"
+    in 
+        Text.Combine({Text.From(Decendial, "en-US"), Ordinal, " Dec."})
+),
+    #"Número do Pentêndio" = Table.AddColumn(#"Decêndio Abreviado EN", "Número do Pentêndio", 
+each if Date.Day([Data]) <= 5 then 1 
+else if Date.Day([Data]) <= 10 then 2 
+else if Date.Day([Data]) <= 15 then 3
+else if Date.Day([Data]) <= 20 then 4
+else if Date.Day([Data]) <= 25 then 5
+else 6),
+    Pentêndio = Table.AddColumn(#"Número do Pentêndio", "Pentêndio", 
+each Text.Combine({Text.From([Número do Pentêndio], "pt-BR"), 
+"º Pentêndio"}), 
+type text),
+    #"Pentêndio EN" = Table.AddColumn(Pentêndio, "Pentêndio EN", 
+each 
+    let  
+        Pentendial = [Número do Pentêndio],  
+        Ordinal = if Pentendial = 1 then "st"  
+                  else if Pentendial = 2 then "nd"  
+                  else if Pentendial = 3 then "rd"  
+                  else "th"
+    in 
+        Text.Combine({Text.From(Pentendial, "en-US"), Ordinal, " Pentendial"})
+),
+    #"Pentêndio Abreviado" = Table.AddColumn(#"Pentêndio EN", "Pentêndio Abreviado", 
+each Text.Combine({Text.From([Número do Pentêndio], "pt-BR"), 
+"º Pent."}), 
+type text),
+    #"Pentêndio Abreviado EN" = Table.AddColumn(#"Pentêndio Abreviado", "Pentêndio Abreviado EN", 
+each 
+    let 
+        Pentendial = [Número do Pentêndio],  
+        Ordinal = if Pentendial = 1 then "st"  
+                  else if Pentendial = 2 then "nd"  
+                  else if Pentendial = 3 then "rd"  
+                  else "th"
+    in 
+        Text.Combine({Text.From(Pentendial, "en-US"), Ordinal, " Pent."})
+),
+    #"Data Início do Mês" = Table.AddColumn(#"Pentêndio Abreviado EN", "Data Início do Mês", each Date.StartOfMonth([Data])),
+    #"Data Fim do Mês" = Table.AddColumn(#"Data Início do Mês", "Data Fim do Mês", each Date.EndOfMonth([Data])),
+    #"Data Início do Trimestre" = Table.AddColumn(#"Data Fim do Mês", "Data Início do Trimestre", each Date.StartOfQuarter([Data])),
+    #"Data Fim do Trimestre" = Table.AddColumn(#"Data Início do Trimestre", "Data Fim do Trimestre", each Date.EndOfQuarter([Data])),
+    #"Data Início do Ano" = Table.AddColumn(#"Data Fim do Trimestre", "Data Início do Ano", each Date.StartOfYear([Data])),
+    #"Data Fim do Ano" = Table.AddColumn(#"Data Início do Ano", "Data Fim do Ano", each Date.EndOfYear([Data])),
+    #"Flag Primeiro Dia do Mês" = Table.AddColumn(#"Data Fim do Ano", "Flag Primeiro Dia do Mês", each if Date.StartOfMonth([Data]) = [Data] then "Sim" else "Não"),
+    #"Flag Último Dia do Mês" = Table.AddColumn(#"Flag Primeiro Dia do Mês", "Flag Último Dia do Mês", each if Date.EndOfMonth([Data]) = [Data] then "Sim" else "Não"),
+    #"Flag Primeiro Dia do Ano" = Table.AddColumn(#"Flag Último Dia do Mês", "Flag Primeiro Dia do Ano", each if Date.StartOfYear([Data]) = [Data] then "Sim" else "Não"),
+    #"Flag Último Dia do Ano" = Table.AddColumn(#"Flag Primeiro Dia do Ano", "Flag Último Dia do Ano", each if Date.EndOfYear([Data]) = [Data] then "Sim" else "Não"),
+    #"Data Ano Anterior" = Table.AddColumn(#"Flag Último Dia do Ano", "Data Ano Anterior", each Date.AddYears([Data], -1)),
+    #"Data Mês Anterior" = Table.AddColumn(#"Data Ano Anterior", "Data Mês Anterior", each Date.AddMonths([Data], -1)),
+    #"Data Semana Anterior" = Table.AddColumn(#"Data Mês Anterior", "Data Semana Anterior", each Date.AddWeeks([Data], -1)),
+    #"Data Trimestre Anterior" = Table.AddColumn(#"Data Semana Anterior", "Data Trimestre Anterior", each Date.AddQuarters([Data], -1)),
+    #"Dia Anterior" = Table.AddColumn(#"Data Trimestre Anterior", "Dia Anterior", each Date.AddDays([Data], -1)),
+    #"Dias Restantes no Ano" = Table.AddColumn(#"Dia Anterior", "Dias Restantes no Ano", each Duration.Days([Data Fim do Ano] - [Data])),
+    #"Dias Restantes no Mês" = Table.AddColumn(#"Dias Restantes no Ano", "Dias Restantes no Mês", each Duration.Days([Data Fim do Mês] - [Data])),
+    #"Tipo Alterado" = Table.TransformColumnTypes(#"Dias Restantes no Mês",{{"Índice Data", Int64.Type}, {"Número Data", Int64.Type}, {"Data ISO", type text}, {"Dia", Int64.Type}, {"Número do Mês", Int64.Type}, {"Mês", type text}, {"Mês EN", type text}, {"Mês Abreviado", type text}, {"Mês Abreviado EN", type text}, {"Ano", Int64.Type}, {"Flag Ano Bissexto", type text}, {"Número do Dia do Ano", Int64.Type}, {"Número de Dias no Mês", Int64.Type}, {"Número do Mês Dia", Int64.Type}, {"Mês Dia", type text}, {"Mês Dia MMMM-dd", type text}, {"Mês Dia MMMM-dd EN", type text}, {"Mês Dia MMM-dd", type text}, {"Mês Dia MMM-dd EN", type text}, {"Dia Mês", type text}, {"Dia Mês dd-MMMM", type text}, {"Dia Mês dd-MMMM EN", type text}, {"Dia Mês dd-MMM", type text}, {"Dia Mês dd-MMM EN", type text}, {"Índice Ano Mês", Int64.Type}, {"Número do Ano Mês", Int64.Type}, {"Ano Mês", type text}, {"Ano Mês yyyy-MMMM", type text}, {"Ano Mês yyyy-MMMM EN", type text}, {"Ano Mês yyyy-MMM", type text}, {"Ano Mês yyyy-MMM EN", type text}, {"Mês Ano", type text}, {"Mês Ano MMMM-yyyy", type text}, {"Mês Ano MMMM-yyyy EN", type text}, {"Mês Ano MMM-yyyy", type text}, {"Mês Ano MMM-yyyy EN", type text}, {"Número da Semana do Ano", Int64.Type}, {"Semana do Ano", type text}, {"Semana do Ano EN", type text}, {"Semana do Ano Abreviado", type text}, {"Semana do Ano Abreviado EN", type text}, {"Número da Semana do Mês", Int64.Type}, {"Semana do Mês", type text}, {"Semana do Mês EN", type text}, {"Semana do Mês Abreviado", type text}, {"Semana do Mês Abreviado EN", type text}, {"Número do Dia da Semana", Int64.Type}, {"Dia da Semana", type text}, {"Dia da Semana EN", type text}, {"Dia da Semana Abreviado", type text}, {"Dia da Semana Abreviado EN", type text}, {"Número do Dia da Semana ISO", Int64.Type}, {"Dia da Semana ISO", type text}, {"Dia da Semana ISO EN", type text}, {"Dia da Semana ISO Abreviado", type text}, {"Dia da Semana ISO Abreviado EN", type text}, {"Tipo de Dia", type text}, {"Número do Semestre", Int64.Type}, {"Semestre", type text}, {"Semestre EN", type text}, {"Semestre Abreviado", type text}, {"Semestre Abreviado EN", type text}, {"Número do Quadrimestre", Int64.Type}, {"Quadrimestre", type text}, {"Quadrimestre EN", type text}, {"Quadrimestre Abreviado", type text}, {"Quadrimestre Abreviado EN", type text}, {"Número do Trimestre", Int64.Type}, {"Trimestre", type text}, {"Trimestre EN", type text}, {"Trimestre Abreviado", type text}, {"Trimestre Abreviado EN", type text}, {"Número do Bimestre", Int64.Type}, {"Bimestre", type text}, {"Bimestre EN", type text}, {"Bimestre Abreviado", type text}, {"Bimestre Abreviado EN", type text}, {"Número da Quinzena", Int64.Type}, {"Quinzena", type text}, {"Quinzena EN", type text}, {"Quinzena Abreviado", type text}, {"Quinzena Abreviado EN", type text}, {"Número do Decêndio", Int64.Type}, {"Decêndio", type text}, {"Decêndio EN", type text}, {"Decêndio Abreviado", type text}, {"Decêndio Abreviado EN", type text}, {"Número do Pentêndio", Int64.Type}, {"Pentêndio", type text}, {"Pentêndio EN", type text}, {"Pentêndio Abreviado", type text}, {"Pentêndio Abreviado EN", type text}, {"Data Início do Mês", type date}, {"Data Fim do Mês", type date}, {"Data Início do Trimestre", type date}, {"Data Fim do Trimestre", type date}, {"Data Início do Ano", type date}, {"Data Fim do Ano", type date}, {"Flag Primeiro Dia do Mês", type text}, {"Flag Último Dia do Mês", type text}, {"Flag Primeiro Dia do Ano", type text}, {"Flag Último Dia do Ano", type text}, {"Data Ano Anterior", type date}, {"Data Mês Anterior", type date}, {"Data Semana Anterior", type date}, {"Data Trimestre Anterior", type date}, {"Dia Anterior", type date}, {"Dias Restantes no Ano", Int64.Type}, {"Dias Restantes no Mês", Int64.Type}}),
+    #"Mescla com Feriados_Agrupados" = Table.NestedJoin(#"Tipo Alterado", {"Data"}, Feriados_Agrupados, {"Data"}, "Feriados", JoinKind.LeftOuter),
+    #"Colunas Feriados_Agrupados" = Table.ExpandTableColumn(#"Mescla com Feriados_Agrupados", "Feriados", {"Feriado", "Tipo de Feriado", "Data Comemorativa", "Estado", "Observação/Legislação"}, {"Feriado", "Tipo de Feriado", "Data Comemorativa", "Estado", "Observação/Legislação"}),
+    #"Flag Feriado" = Table.AddColumn(#"Colunas Feriados_Agrupados", "Flag Feriado", 
+each if [Tipo de Feriado] = "Fixo" or [Feriado] = "Paixão de Cristo (Sexta-feira santa)" then "Sim"
+else "Não", 
+type text
+),
+    #"Flag Dia Útil" = Table.AddColumn(#"Flag Feriado", "Flag Dia Útil", 
+each if [Flag Feriado] = "Sim" or [Tipo de Dia] = "Final de Semana" then "Não"
+else "Sim",
+type text
+),
+    #"Em Branco para null" = Table.ReplaceValue(#"Flag Dia Útil","",null,Replacer.ReplaceValue,{"Feriado", "Tipo de Feriado", "Data Comemorativa", "Estado", "Observação/Legislação"})
+in
+    #"Em Branco para null"
