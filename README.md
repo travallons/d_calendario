@@ -12,7 +12,7 @@ Este repositório disponibiliza uma **Tabela Calendário** altamente detalhada e
 
 - **📄 `d_calendario.xlsb`** → Planilha Excel com todos os dados  
 - **📜 `d_calendario.txt`** → Código M para Power Query (Power BI e Excel)  
-- **📊 `d_calendario.pbix`** → Modelo pronto no Power BI  
+- **📊 `Tabela Calendário Brasileiro Completa.pbix`** → Modelo pronto no Power BI  
 
 > **ℹ️ Importante:**  
 > O arquivo Excel está no formato **`.xlsb` (Binary Workbook)**, que reduz o tamanho do arquivo e melhora o desempenho no Excel. No entanto, algumas ferramentas externas podem não suportá-lo nativamente. Caso precise de outro formato, você pode salvar como `.xlsx` ou `.csv` dentro do próprio Excel.
@@ -23,7 +23,7 @@ Este repositório disponibiliza uma **Tabela Calendário** altamente detalhada e
 1. **Excel**: Importe o `d_calendario.xlsb` pelo **Obter Dados > Excel**.  
 2. **Power Query**: Copie e cole o código do `d_calendario.txt` no Editor Avançado do Power Query.  
 3. **Power Query**: Copie e cole o código do `d_calendario_dinamico.txt` no Editor Avançado do Power Query para que seu calendário possua range baseado na sua fonte de dados.
-4. **Modelo Pronto**: Abra o `d_calendario.pbix` e explore o modelo já configurado.  
+4. **Modelo Pronto**: Abra o `Tabela Calendário Brasileiro Completa.pbix` e explore o modelo já configurado.  
 
 ### 🟣 No SQL Server  
 1. Crie uma tabela no seu banco de dados.  
