@@ -1,5 +1,5 @@
 let
-    // Obtém a data mínima e máxima da base de tickets
+    // Obtém a data mínima e máxima da sua base de dados
     Fonte = sua_base,
     Inicio = List.Min(Fonte[data_da_base]),  // Obtém a menor data da base
     Fim = List.Max(Fonte[data_da_base]),      // Obtém a maior data da base
