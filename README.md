@@ -11,7 +11,8 @@ Este repositório disponibiliza uma **Tabela Calendário** altamente detalhada e
 ## 📂 Arquivos Disponíveis  
 
 - **📄 `d_calendario.xlsb`** → Planilha Excel com todos os dados  
-- **📜 `d_calendario.txt`** → Código M para Power Query (Power BI e Excel)  
+- **📜 `d_calendario.txt`** → Código M para Power Query (Power BI e Excel)
+- **📜 `d_calendario_dinamico.txt`** → Código M para Power Query, data de início e fim baseado na sua fonte de dados (Power BI e Excel) 
 - **📊 `Tabela Calendário Brasileiro Completa.pbix`** → Modelo pronto no Power BI  
 
 > **ℹ️ Importante:**  
